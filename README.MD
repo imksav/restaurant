@@ -7,5 +7,5 @@
 4. Create Server Side Framework
    1. Initalize the package.json file (npm init -y)
    2. Install MERN (npm install express cors dotenv mongoose nodemon)
-   ![alt text](code.png)
+   ![alt text](ref/ref1.png)
    3. 
