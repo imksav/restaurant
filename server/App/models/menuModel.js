@@ -16,7 +16,14 @@ let menuSchema = new Schema(
     },
     category: {
       type: String,
-      enum: ["Appetizer", "Lamb Curry Dishes", "Dessert", "Beverage"],
+      enum: [
+        "Veg Starters",
+        "Non-Veg Starters",
+        "Chicken Curry Dishes",
+        "Lamb Curry Dishes",
+        "Veg Curry Dishes",
+        "Sizzling Mix Grill",
+      ],
       required: true,
     },
     imageUrl: {

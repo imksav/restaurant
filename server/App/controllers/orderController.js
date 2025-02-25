@@ -22,10 +22,18 @@ const createOrder = async (req, res) => {
     if (!existingUser) {
       return res.status(404).json({ msg: "User not found" });
     }
+    // Validate items array
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({
+        status: 0,
+        msg: "Items must be a non-empty array",
+      });
+    }
 
     // Calculate total amount and validate menu items
     let totalAmount = 0;
     const validateItems = [];
+    console.log(items);
     for (const item of items) {
       const menuItem = await MenuModel.findById(item.menuItem);
       if (!menuItem || !menuItem.isAvailable) {
@@ -58,16 +66,16 @@ const createOrder = async (req, res) => {
     res.status(200).json({
       status: 1,
       msg: "Order Created Successfully",
-      data: [
-        order.user,
-        order.items[0].menuItem,
-        order.items[0].quantity,
-        order.items[0].priceAtOrder,
-        order.totalAmount,
-        order.status,
-        order.deliveryAddress,
-        order.paymentMethod,
-      ],
+      // data: [
+      //   order.user,
+      //   order.items[0].menuItem,
+      //   order.items[0].quantity,
+      //   order.items[0].priceAtOrder,
+      //   order.totalAmount,
+      //   order.status,
+      //   order.deliveryAddress,
+      //   order.paymentMethod,
+      // ],
     });
   } catch (error) {
     res.status(500).json({ msg: error.message });
