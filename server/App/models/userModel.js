@@ -23,11 +23,15 @@ let userSchema = new Schema({
     default: "user",
     lowercase: true,
   },
+  orderCount: {
+    type: Number,
+    default: 0,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
   },
 });
 
-const UserModel = mongoose.model("User", userSchema);
+const UserModel = mongoose.model("user", userSchema);
 module.exports = { UserModel };

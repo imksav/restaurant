@@ -1,18 +1,21 @@
 let express = require("express");
-let mongoose = require("mongoose");
 require("dotenv").config();
 const { connectDB } = require("./App/components/dbconnection");
-const { contactRouter } = require("./App/routes/web/ContactRoutes");
-const { subscriberRouter } = require("./App/routes/web/subscriberRoutes");
-const { loginRouter } = require("./App/routes/admin/loginRoutes");
+const { contactRouter } = require("./App/routes/contactRoutes");
+const { subscriberRouter } = require("./App/routes/subscriberRoutes");
+const { loginRouter } = require("./App/routes/loginRoutes");
+const { menuRouter } = require("./App/routes/menuRoutes");
+const { orderRouter } = require("./App/routes/orderRoutes");
 
 let app = express();
 app.use(express.json());
 
 // Routes
 app.use("/api/restaurant/contact", contactRouter);
-app.use("/api/restaurant/", subscriberRouter);
+app.use("/api/restaurant/subscribe", subscriberRouter);
 app.use("/api/restaurant/", loginRouter);
+app.use("/api/restaurant/menu/", menuRouter);
+app.use("/api/restaurant/order/", orderRouter);
 
 // Connect to MongoDB
 connectDB();

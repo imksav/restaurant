@@ -3,8 +3,8 @@ const {
   userLogin,
   userSignup,
   userLogout,
-} = require("../../controllers/admin/userController");
-const authMiddleware = require("../../middleware/authMiddleware");
+} = require("../controllers/userController");
+const authMiddleware = require("../middleware/authMiddleware");
 
 let loginRouter = express.Router();
 

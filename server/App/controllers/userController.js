@@ -1,4 +1,4 @@
-const { UserModel } = require("../../models/admin/userModel");
+const { UserModel } = require("../models/userModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
@@ -38,6 +38,7 @@ let userLogin = async (req, res, next) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        orderCount: user.orderCount,
       },
     });
   } catch (error) {

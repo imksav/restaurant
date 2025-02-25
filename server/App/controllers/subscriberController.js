@@ -1,6 +1,4 @@
-const {
-  subscriberModel,
-} = require("../../models/web/Subscribe/subscriberModel");
+const { subscriberModel } = require("../models/subscriberModel");
 
 let subscriber = async (req, res) => {
   try {

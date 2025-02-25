@@ -1,4 +1,4 @@
-const { contactModel } = require("../../models/web/Contact/ContactModel");
+const { contactModel } = require("../models/contactModel");
 
 let contactInsert = async (req, res) => {
   let { name, email, phone, message } = req.body;
