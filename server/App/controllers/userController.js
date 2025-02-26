@@ -3,10 +3,22 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
-let userLogin = async (req, res, next) => {
+let login = async (req, res, next) => {
+  const { email, password } = req.body;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const passwordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
+
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ msg: "Invalid email format" });
+  }
+  if (!passwordRegex.test(password)) {
+    return res.status(400).json({
+      msg: "Password must be at least 8 characters, include an uppercase letter, lowercase letter, number, and special character",
+    });
+  }
   try {
-    const { email, password } = req.body;
-    const user = await UserModel.findOne({ email: email.toLowerCase() });
+    const user = await UserModel.findOne({ email });
     if (!user) {
       return res.status(404).json({ msg: "User not found" });
     }
@@ -18,28 +30,22 @@ let userLogin = async (req, res, next) => {
     const token = jwt.sign(
       {
         _id: user._id,
+        role: user.role,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "90d" }
+      { expiresIn: "5m" }
     );
+    // res.json({ token });
     // Send JWT in an HTTP-only cookie
     res.cookie("token", token, {
       httpOnly: true, // Prevent access from JavaScript (protects against XSS attacks)
       secure: process.env.NODE_ENV === "production", // Use HTTPS in production
       sameSite: "Strict", // Prevent CSRF attacks
-      maxAge: 90 * 24 * 60 * 60 * 1000, // 90 days
+      maxAge: 5 * 60 * 1000,
     });
     res.status(200).json({
       status: 1,
-      msg: "Login Successfull",
-      token,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        orderCount: user.orderCount,
-      },
+      msg: "Login Successful",
     });
   } catch (error) {
     res.status(500).json({
@@ -50,63 +56,51 @@ let userLogin = async (req, res, next) => {
   }
 };
 
-let userSignup = async (req, res, next) => {
-  try {
-    const email = req.body.email.toLowerCase();
+let register = async (req, res, next) => {
+  const { name, email, password, role } = req.body;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const passwordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
 
-    const user = await UserModel.findOne({ email });
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({ msg: "Invalid email format" });
-    }
-    if (req.body.password.length < 8) {
-      return res
-        .status(400)
-        .json({ msg: "Password must be at least 8 characters long" });
-    }
-
-    if (user) {
-      return res.status(409).json({
-        status: 0,
-        msg: "User already exists",
-        email: req.body.email,
-      });
-    }
-
-    // Hash password
-    const hashedPassword = await bcrypt.hash(req.body.password, 15);
-
-    // Create new user
-    const newUser = await UserModel.create({
-      ...req.body,
-      password: hashedPassword,
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ msg: "Invalid email format" });
+  }
+  if (!passwordRegex.test(password)) {
+    return res.status(400).json({
+      msg: "Password must be at least 8 characters, include an uppercase letter, lowercase letter, number, and special character",
     });
-
-    // Assign JWT - Json Web Token
-    const token = jwt.sign(
-      {
-        _id: newUser._id,
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: "90d" }
-    );
-
-    res.status(201).json({
+  }
+  try {
+    const userExist = await UserModel.findOne({ email });
+    if (userExist) {
+      return res.status(400).json({ msg: "user already exists" });
+    }
+    const user = new UserModel({
+      name,
+      email,
+      password,
+      role,
+    });
+    await user.save();
+    res.status(200).json({
       status: 1,
       msg: "User registered successfully",
-      token,
+      data: user,
     });
   } catch (error) {
-    console.error("Signup Error:", error);
     res.status(500).json({
       msg: "Internal Server Error. Please try again later.",
     });
   }
 };
 
-const userLogout = (req, res) => {
+const logout = (req, res) => {
+  if (!req.cookies.token) {
+    return res
+      .status(400)
+      .json({ msg: "No token found. User is already logged out." });
+  }
   res.cookie("token", "", { expires: new Date(0) }); // Clear the cookie
   res.status(200).json({ msg: "Logout successful" });
 };
-module.exports = { userLogin, userSignup, userLogout };
+module.exports = { login, register, logout };
